@@ -1,1 +1,0 @@
-# hc-service-registry
