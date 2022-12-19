@@ -3,6 +3,9 @@ pipeline {
     tools {
         maven 'MAVEN-3.8.4'
     }
+    environment {
+        DOCKER_TAG = "${BUILD_NUMBER}"
+    }
     stages {
         stage('Build Maven') {
             steps {
@@ -13,8 +16,9 @@ pipeline {
         stage('Build docker image') {
             steps {
                 sh 'docker version'
-                sh 'docker build -t valere1991/hc-service-registry .'
+                sh 'docker build -t hc-service-registry .'
                 sh 'docker image list'
+                sh 'docker tag hc-service-registry valere1991/hc-service-registry:${DOCKER_TAG}'
             }
         }
         stage('Docker Hub login') {
@@ -26,13 +30,13 @@ pipeline {
         }
         stage('Push image to Docker Hub') {
             steps {
-                sh 'docker push valere1991/hc-service-registry'
+                sh 'docker push valere1991/hc-service-registry:${DOCKER_TAG}'
             }
         }
         stage("remove unused docker image") {
             steps {
             sh 'docker rmi hc-service-registry -f'
-            sh 'docker rmi valere1991/hc-service-registry -f'
+            sh 'docker rmi valere1991/hc-service-registry:${DOCKER_TAG} -f'
          }
         }
 //         stage('Deploy to k8s') {
